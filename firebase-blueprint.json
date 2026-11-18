@@ -1,0 +1,227 @@
+{
+  "entities": {
+    "RoomDoc": {
+      "title": "Multiplayer Room",
+      "description": "Shared Co-op or PvP dungeon room supporting up to 2 authenticated players.",
+      "type": "object",
+      "properties": {
+        "roomCode": {
+          "type": "string",
+          "description": "Alphanumeric room code matching the document ID."
+        },
+        "hostUid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the room creator."
+        },
+        "hostName": {
+          "type": "string",
+          "description": "Display name of the host player."
+        },
+        "guestUid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the joined guest, or empty string while open."
+        },
+        "guestName": {
+          "type": "string",
+          "description": "Display name of the joined guest, or empty string."
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["coop", "pvp"],
+          "description": "Multiplayer mode: cooperative dungeon run or PvP duel."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["waiting", "playing", "finished"],
+          "description": "Current lifecycle status of the room."
+        },
+        "floor": {
+          "type": "integer",
+          "description": "Shared dungeon floor index (starts at 1)."
+        },
+        "seed": {
+          "type": "integer",
+          "description": "Deterministic PRNG seed so both clients generate the exact same dungeon."
+        },
+        "winnerUid": {
+          "type": "string",
+          "description": "UID of the winning player when status is finished, or empty string."
+        },
+        "memberUids": {
+          "type": "array",
+          "description": "Bounded list (1 to 2) of participant UIDs for security scoping."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp updated via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "roomCode",
+        "hostUid",
+        "hostName",
+        "guestUid",
+        "guestName",
+        "mode",
+        "status",
+        "floor",
+        "seed",
+        "winnerUid",
+        "memberUids",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "RoomPlayer": {
+      "title": "Room Player State",
+      "description": "Real-time synchronized state of a player inside a multiplayer room.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID matching the document ID."
+        },
+        "roomId": {
+          "type": "string",
+          "description": "Parent room ID."
+        },
+        "memberUids": {
+          "type": "array",
+          "description": "Denormalized member UIDs (max 2) copied from the parent room."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Player display nickname."
+        },
+        "skinKey": {
+          "type": "string",
+          "description": "Selected PlayerSkin key (including secret skins)."
+        },
+        "roomGx": {
+          "type": "integer",
+          "description": "Current room grid X coordinate."
+        },
+        "roomGy": {
+          "type": "integer",
+          "description": "Current room grid Y coordinate."
+        },
+        "x": {
+          "type": "number",
+          "description": "World X coordinate inside the room."
+        },
+        "y": {
+          "type": "number",
+          "description": "World Y coordinate inside the room."
+        },
+        "vx": {
+          "type": "number",
+          "description": "Horizontal velocity."
+        },
+        "vy": {
+          "type": "number",
+          "description": "Vertical velocity."
+        },
+        "hp": {
+          "type": "integer",
+          "description": "Current red half-hearts."
+        },
+        "maxHp": {
+          "type": "integer",
+          "description": "Maximum red half-hearts."
+        },
+        "shield": {
+          "type": "integer",
+          "description": "Current blue shield points."
+        },
+        "score": {
+          "type": "integer",
+          "description": "Current run score."
+        },
+        "facingRight": {
+          "type": "boolean",
+          "description": "Horizontal facing direction."
+        },
+        "alive": {
+          "type": "boolean",
+          "description": "Whether the player is still alive in the match."
+        },
+        "shotSeq": {
+          "type": "integer",
+          "description": "Monotonic shot counter to trigger remote projectile spawns."
+        },
+        "shotX": {
+          "type": "number",
+          "description": "Origin X of latest shot."
+        },
+        "shotY": {
+          "type": "number",
+          "description": "Origin Y of latest shot."
+        },
+        "shotVx": {
+          "type": "number",
+          "description": "Velocity X of latest shot."
+        },
+        "shotVy": {
+          "type": "number",
+          "description": "Velocity Y of latest shot."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp updated via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "uid",
+        "roomId",
+        "memberUids",
+        "displayName",
+        "skinKey",
+        "roomGx",
+        "roomGy",
+        "x",
+        "y",
+        "vx",
+        "vy",
+        "hp",
+        "maxHp",
+        "shield",
+        "score",
+        "facingRight",
+        "alive",
+        "shotSeq",
+        "shotX",
+        "shotY",
+        "shotVx",
+        "shotVy",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/rooms/{roomId}": {
+      "schema": {
+        "$ref": "#/entities/RoomDoc"
+      },
+      "description": "Multiplayer match rooms (Co-op and PvP Duel) indexed by 6-char room code."
+    },
+    "/rooms/{roomId}/players/{playerId}": {
+      "schema": {
+        "$ref": "#/entities/RoomPlayer"
+      },
+      "description": "Per-player live sync state inside a multiplayer room, keyed by player UID."
+    }
+  }
+}

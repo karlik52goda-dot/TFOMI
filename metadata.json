@@ -1,0 +1,6 @@
+{
+  "name": "TFOMI",
+  "description": "Fast-paced roguelike platformer shooter combining Super Meat Boy precision movement, Fortnite real-time building & storm survival, and Binding of Isaac dungeons & tear synergies.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
